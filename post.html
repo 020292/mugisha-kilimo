@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post - AgroBlog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f9fafb; color: #1f2937; }
+        header { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: white; padding: 1.2rem 2rem; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2); }
+        nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 700; text-decoration: none; color: white; }
+        .back-btn { background: rgba(255, 255, 255, 0.2); border: 2px solid white; color: white; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; text-decoration: none; }
+        .back-btn:hover { background: white; color: #22c55e; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .article-header { background: white; padding: 3rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08); }
+        .article-category { display: inline-block; background: #dcfce7; color: #15803d; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+        .article-title { font-size: 2.5rem; color: #1f2937; margin-bottom: 1rem; }
+        .article-meta { color: #6b7280; font-size: 0.95rem; border-top: 1px solid #e5e7eb; padding-top: 1rem; }
+        .article-image { width: 100%; height: 400px; object-fit: cover; border-radius: 10px; margin: 2rem 0; }
+        .article-content { background: white; padding: 3rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08); line-height: 1.9; }
+        .article-content h2 { font-size: 1.8rem; color: #22c55e; margin: 2rem 0 1rem 0; }
+        .article-content p { margin-bottom: 1.5rem; color: #6b7280; }
+        .comments-section { background: white; padding: 3rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08); }
+        .comments-title { font-size: 1.8rem; color: #1f2937; margin-bottom: 2rem; border-bottom: 3px solid #22c55e; padding-bottom: 1rem; }
+        .comment-form { background: #f9fafb; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #1f2937; font-weight: 600; }
+        .form-group input, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 6px; font-family: 'Poppins', sans-serif; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #22c55e; }
+        .form-group textarea { min-height: 120px; }
+        .submit-btn { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: white; border: none; padding: 0.9rem 2rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .submit-btn:hover { transform: translateY(-2px); }
+        .comment { padding: 1.5rem; background: #f9fafb; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 1rem; }
+        .comment-author { font-weight: 700; color: #1f2937; }
+        .comment-date { font-size: 0.85rem; color: #6b7280; margin-bottom: 0.8rem; }
+        .comment-text { color: #6b7280; }
+        .no-comments { text-align: center; padding: 2rem; color: #6b7280; }
+        footer { background: #15803d; color: white; padding: 2rem; text-align: center; margin-top: 4rem; }
+        .loading { text-align: center; padding: 3rem; color: #6b7280; }
+        .error { background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #dc2626; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">🌾 AgroBlog</a>
+            <a href="index.html" class="back-btn">← Back</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="articleHeader" class="article-header">
+            <div class="loading">Loading post...</div>
+        </div>
+        <div id="articleContent" class="article-content"></div>
+        <div id="commentsSection" class="comments-section"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 AgroBlog. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@latest/dist/appwrite.min.js"></script>
+    <script>
+        const CONFIG = {
+            endpoint: 'https://cloud.appwrite.io/v1',
+            projectId: '69bcc2440033dea9fc05',
+            databaseId: 'blog_db',
+            collectionId: 'posts',
+            commentsCollection: 'comments'
+        };
+
+        const client = new Appwrite.Client();
+        client.setEndpoint(CONFIG.endpoint).setProject(CONFIG.projectId);
+        const databases = new Appwrite.Databases(client);
+
+        let currentPost = null;
+
+        async function loadPost() {
+            try {
+                let post = JSON.parse(sessionStorage.getItem('selectedPost'));
+                if (!post) throw new Error('Post not found');
+                
+                currentPost = post;
+                const imageHTML = post.image ? `<img src="${post.image}" alt="${post.title}" class="article-image">` : '';
+                
+                document.getElementById('articleHeader').innerHTML = `
+                    <span class="article-category">${post.category || 'General'}</span>
+                    <h1 class="article-title">${post.title}</h1>
+                    <div class="article-meta">📅 ${new Date(post.$createdAt).toLocaleDateString()}</div>
+                    ${imageHTML}
+                `;
+
+                document.getElementById('articleContent').innerHTML = `<div>${post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</div>`;
+                document.title = post.title + ' - AgroBlog';
+                loadComments(post.$id);
+            } catch (error) {
+                document.getElementById('articleHeader').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadComments(postId) {
+            try {
+                const response = await databases.listDocuments(
+                    CONFIG.databaseId,
+                    CONFIG.commentsCollection,
+                    [Appwrite.Query.equal('postId', postId), Appwrite.Query.orderDesc('$createdAt')]
+                );
+                displayComments(response.documents, postId);
+            } catch {
+                displayComments([], postId);
+            }
+        }
+
+        function displayComments(comments, postId) {
+            let html = `
+                <h2 class="comments-title">💬 Comments (${comments.length})</h2>
+                <form class="comment-form" id="commentForm">
+                    <div class="form-group">
+                        <label for="commentName">Name:</label>
+                        <input type="text" id="commentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="commentEmail">Email (optional):</label>
+                        <input type="email" id="commentEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="commentText">Comment:</label>
+                        <textarea id="commentText" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Comment</button>
+                </form>
+            `;
+
+            if (comments.length === 0) {
+                html += '<div class="no-comments"><p>No comments yet. Be the first!</p></div>';
+            } else {
+                comments.forEach(c => {
+                    html += `
+                        <div class="comment">
+                            <div class="comment-author">${c.name || 'Anonymous'}</div>
+                            <div class="comment-date">${new Date(c.$createdAt).toLocaleDateString()}</div>
+                            <div class="comment-text">${c.text}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('commentsSection').innerHTML = html;
+            document.getElementById('commentForm').addEventListener('submit', e => {
+                e.preventDefault();
+                submitComment(postId);
+            });
+        }
+
+        async function submitComment(postId) {
+            try {
+                await databases.createDocument(
+                    CONFIG.databaseId,
+                    CONFIG.commentsCollection,
+                    'unique()',
+                    {
+                        postId: postId,
+                        name: document.getElementById('commentName').value,
+                        email: document.getElementById('commentEmail').value,
+                        text: document.getElementById('commentText').value
+                    }
+                );
+                document.getElementById('commentForm').reset();
+                loadComments(postId);
+            } catch (error) {
+                alert('Error posting comment: ' + error.message);
+            }
+        }
+
+        loadPost();
+    </script>
+</body>
+</html>
