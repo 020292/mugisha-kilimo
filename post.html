@@ -64,21 +64,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/appwrite@latest/dist/appwrite.min.js"></script>
     <script>
-        const CONFIG = {
-            endpoint: 'https://cloud.appwrite.io/v1',
-            projectId: '69bcc2440033dea9fc05',
-            databaseId: 'blog_db',
-            collectionId: 'posts',
-            commentsCollection: 'comments'
-        };
-
-        const client = new Appwrite.Client();
-        client.setEndpoint(CONFIG.endpoint).setProject(CONFIG.projectId);
-        const databases = new Appwrite.Databases(client);
-
         let currentPost = null;
 
-        async function loadPost() {
+        function loadPost() {
             try {
                 let post = JSON.parse(sessionStorage.getItem('selectedPost'));
                 if (!post) throw new Error('Post not found');
@@ -101,15 +89,16 @@
             }
         }
 
-        async function loadComments(postId) {
+        function loadComments(postId) {
             try {
-                const response = await databases.listDocuments(
-                    CONFIG.databaseId,
-                    CONFIG.commentsCollection,
-                    [Appwrite.Query.equal('postId', postId), Appwrite.Query.orderDesc('$createdAt')]
-                );
-                displayComments(response.documents, postId);
-            } catch {
+                const client = new Appwrite.Client();
+                client.setEndpoint('https://cloud.appwrite.io/v1').setProject('69bcc2440033dea9fc05');
+                const databases = new Appwrite.Databases(client);
+
+                databases.listDocuments('blog_db', 'comments', [Appwrite.Query.equal('postId', postId), Appwrite.Query.orderDesc('$createdAt')])
+                    .then(response => displayComments(response.documents, postId))
+                    .catch(() => displayComments([], postId));
+            } catch (error) {
                 displayComments([], postId);
             }
         }
@@ -155,23 +144,23 @@
             });
         }
 
-        async function submitComment(postId) {
+        function submitComment(postId) {
             try {
-                await databases.createDocument(
-                    CONFIG.databaseId,
-                    CONFIG.commentsCollection,
-                    'unique()',
-                    {
-                        postId: postId,
-                        name: document.getElementById('commentName').value,
-                        email: document.getElementById('commentEmail').value,
-                        text: document.getElementById('commentText').value
-                    }
-                );
-                document.getElementById('commentForm').reset();
-                loadComments(postId);
+                const client = new Appwrite.Client();
+                client.setEndpoint('https://cloud.appwrite.io/v1').setProject('69bcc2440033dea9fc05');
+                const databases = new Appwrite.Databases(client);
+
+                databases.createDocument('blog_db', 'comments', 'unique()', {
+                    postId: postId,
+                    name: document.getElementById('commentName').value,
+                    email: document.getElementById('commentEmail').value,
+                    text: document.getElementById('commentText').value
+                }).then(() => {
+                    document.getElementById('commentForm').reset();
+                    loadComments(postId);
+                }).catch(error => alert('Error posting comment: ' + error.message));
             } catch (error) {
-                alert('Error posting comment: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 
