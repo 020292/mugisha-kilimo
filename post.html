@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makala - Mugisha Kilimo</title>
+    <style>
+        :root { --primary-green: #2e7d32; }
+        body { font-family: sans-serif; line-height: 1.6; margin: 0; background: #fff; }
+        .header { background: var(--primary-green); color: white; padding: 20px; text-align: center; }
+        .content { max-width: 700px; margin: 20px auto; padding: 20px; }
+        img, video { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; }
+        .comment-section { background: #f4f4f4; padding: 20px; border-radius: 8px; margin-top: 30px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary-green); text-decoration: none; font-weight: bold; }
+        .comment-box { background: white; padding: 10px; margin-bottom: 10px; border-left: 3px solid var(--primary-green); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>Mugisha Kilimo Blog</h2>
+</div>
+
+<div class="content">
+    <a href="index.html" class="back-btn">← Rudi Nyumbani</a>
+    
+    <h1>Matumizi ya Viuatilifu Kwenye Mazao ya Jamii ya Mikunde</h1>
+    <p><small>Imechapishwa na: Mugisha | Machi 20, 2026</small></p>
+
+    <!-- Sehemu ya Picha/Video -->
+    <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=700&q=80" alt="Shamba la Maharage">
+    
+    <p>Kilimo cha kisasa kinahitaji umakini mkubwa katika uchaguzi wa madawa. Kwa mfano, unapotumia viuatilifu vya kukata (contact herbicides) kama Paraquat, hakikisha unazingatia muda sahihi...</p>
+
+    <!-- Mfano wa Video -->
+    <div style="background: #000; color: white; padding: 40px; text-align: center; border-radius: 8px;">
+        [ Sehemu ya Video ya Mafunzo ya Kilimo ]
+    </div>
+
+    <p>Kama una swali, tafadhali weka maoni yako hapa chini.</p>
+
+    <!-- Comment Section -->
+    <div class="comment-section">
+        <h3>Maoni (Comments)</h3>
+        <div id="commentList">
+            <div class="comment-box">
+                <strong>John Doe:</strong> Ahsante sana kwa elimu hii, imemsaidia sana mkulima wa Mbeya.
+            </div>
+        </div>
+        
+        <hr>
+        <h4>Acha Maoni Yako</h4>
+        <input type="text" id="visitorName" placeholder="Jina lako">
+        <textarea id="visitorComment" placeholder="Andika maoni hapa..."></textarea>
+        <button onclick="addComment()" style="background: var(--primary-green); color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer;">Tuma Maoni</button>
+    </div>
+</div>
+
+<script>
+    function addComment() {
+        const name = document.getElementById('visitorName').value;
+        const comment = document.getElementById('visitorComment').value;
+        if(name && comment) {
+            const div = document.createElement('div');
+            div.className = 'comment-box';
+            div.innerHTML = `<strong>${name}:</strong> ${comment}`;
+            document.getElementById('commentList').appendChild(div);
+            alert("Asante kwa maoni!");
+            document.getElementById('visitorName').value = "";
+            document.getElementById('visitorComment').value = "";
+        }
+    }
+</script>
+
+</body>
+</html>
