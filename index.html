@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroBlog - Agriculture News</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f9fafb; color: #1f2937; }
+        header { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: white; padding: 1.2rem 2rem; position: sticky; top: 0; z-index: 100; }
+        nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 700; text-decoration: none; color: white; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: white; text-decoration: none; font-weight: 500; }
+        .hero { background: linear-gradient(135deg, #dcfce7 0%, rgba(34, 197, 94, 0.1) 100%); padding: 5rem 2rem; text-align: center; border-bottom: 4px solid #22c55e; }
+        .hero h1 { font-size: 3.5rem; color: #15803d; margin-bottom: 1rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .about-section { background: white; padding: 3rem 2rem; margin: 2rem auto; border-radius: 10px; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.12); }
+        .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .post-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08); transition: all 0.3s; border: 1px solid #e5e7eb; }
+        .post-card:hover { transform: translateY(-10px); box-shadow: 0 12px 30px rgba(34, 197, 94, 0.18); }
+        .post-image { width: 100%; height: 220px; object-fit: cover; background: #dcfce7; }
+        .post-body { padding: 2rem; }
+        .post-title { font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; }
+        .post-category { display: inline-block; background: #dcfce7; color: #15803d; padding: 0.4rem 0.9rem; border-radius: 15px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1rem; }
+        .post-excerpt { color: #6b7280; margin-bottom: 1rem; }
+        .post-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #6b7280; }
+        .read-more { color: #22c55e; font-weight: 600; text-decoration: none; }
+        .read-more:hover { color: #15803d; }
+        footer { background: #15803d; color: white; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: center; }
+        .loading { text-align: center; padding: 3rem 2rem; color: #6b7280; }
+        .error { background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #dc2626; }
+        .filter-container { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .category-tag { padding: 0.7rem 1.3rem; border-radius: 25px; background: #f9fafb; border: 2px solid #e5e7eb; color: #1f2937; cursor: pointer; transition: all 0.3s; font-weight: 500; }
+        .category-tag.active { background: #22c55e; color: white; border-color: #22c55e; }
+        .category-tag:hover { border-color: #22c55e; background: #dcfce7; }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .posts-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#" class="logo">🌾 AgroBlog</a>
+            <ul class="nav-links">
+                <li><a href="#posts">Posts</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div>
+            <h1>AgroBlog</h1>
+            <p>Agriculture News & Knowledge</p>
+        </div>
+    </section>
+
+    <section id="about" class="about-section container">
+        <h2 style="color: #22c55e; margin-bottom: 1rem;">About AgroBlog</h2>
+        <p style="color: #6b7280; margin-bottom: 1rem; line-height: 1.8;">Welcome to AgroBlog, your source for agriculture news, farming tips, and sustainable agriculture practices.</p>
+    </section>
+
+    <section class="container">
+        <div class="filter-container" id="categoriesContainer">
+            <button class="category-tag active" data-category="all">All</button>
+            <button class="category-tag" data-category="mahindi">Corn</button>
+            <button class="category-tag" data-category="machungwa">Orange</button>
+            <button class="category-tag" data-category="sukuma">Vegetables</button>
+        </div>
+        <div class="posts-grid" id="postsGrid">
+            <div class="loading">Loading posts...</div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div><h3>🌾 AgroBlog</h3><p>Agriculture news and sustainable farming practices.</p></div>
+            <div><h3>Contact</h3><p>📧 info@agroblog.com<br>📞 +255 123 456 789</p></div>
+        </div>
+        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.2); opacity: 0.8;">
+            <p>&copy; 2024 AgroBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@latest/dist/appwrite.min.js"></script>
+    <script>
+        const CONFIG = {
+            endpoint: 'https://cloud.appwrite.io/v1',
+            projectId: '69bcc2440033dea9fc05',
+            databaseId: 'blog_db',
+            collectionId: 'posts'
+        };
+
+        const client = new Appwrite.Client();
+        client.setEndpoint(CONFIG.endpoint).setProject(CONFIG.projectId);
+        const databases = new Appwrite.Databases(client);
+
+        let allPosts = [];
+        let currentFilter = 'all';
+
+        async function loadPosts() {
+            try {
+                const response = await databases.listDocuments(
+                    CONFIG.databaseId,
+                    CONFIG.collectionId,
+                    [Appwrite.Query.equal('published', true), Appwrite.Query.orderDesc('$createdAt')]
+                );
+                allPosts = response.documents;
+                displayPosts();
+            } catch (error) {
+                document.getElementById('postsGrid').innerHTML = `<div class="error">Error loading posts: ${error.message}</div>`;
+            }
+        }
+
+        function displayPosts() {
+            const grid = document.getElementById('postsGrid');
+            let filtered = currentFilter === 'all' ? allPosts : allPosts.filter(p => p.category && p.category.toLowerCase() === currentFilter);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="loading">No posts found</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(post => `
+                <div class="post-card" onclick="viewPost('${post.$id}')">
+                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : ''}
+                    <div class="post-body">
+                        <span class="post-category">${post.category || 'General'}</span>
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-excerpt">${post.excerpt || post.content.substring(0, 150) + '...'}</p>
+                        <div class="post-meta">
+                            <span>${new Date(post.$createdAt).toLocaleDateString()}</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewPost(postId) {
+            const post = allPosts.find(p => p.$id === postId);
+            if (post) {
+                sessionStorage.setItem('selectedPost', JSON.stringify(post));
+                window.location.href = 'post.html';
+            }
+        }
+
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                displayPosts();
+            });
+        });
+
+        loadPosts();
+    </script>
+</body>
+</html>
